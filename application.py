@@ -27,9 +27,7 @@ def register_extensions(app):
     with app.app_context():
         # TODO: Remove before prod deployment ;D
         try:
-            JobInstructions.__table__.drop(db.engine)
-            Job.__table__.drop(db.engine)
-            Repository.__table__.drop(db.engine)
+            pass
         except:
             pass
 

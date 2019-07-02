@@ -1,4 +1,5 @@
 import redis
+import requests
 
 from config import get_settings
 from flask import request, Blueprint
@@ -21,7 +22,16 @@ class Dock(Resource):
         return ":".join([settings.JOB_PREFIX, f"v{settings.JOB_VERSION}", jid])
 
     def _grab_instructions(self, job):
-        pass
+        payload = {
+            "repository": job.repository.name,
+            "provider": job.repository.provider,
+            "user": str(job.repository.user_id),
+            "file_path": job.repository.file_path
+        }
+
+        response = requests.get(settings.AUTH_FILE_ENDPOINT, json=payload)
+        print(response.json())
+        return {"hello":"Bye"}
 
     def _create_job(self, rid):
         schema = JobSchema()
@@ -30,7 +40,7 @@ class Dock(Resource):
             "repository_id": rid
         }
 
-        job = schema.load(rid)
+        job = schema.load(job_payload)
 
         db.session.add(job)
         db.session.commit()

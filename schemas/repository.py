@@ -8,10 +8,27 @@ PROVIDERS = (
     "gitlab"
 )
 
+class JobInstructionsSchema(Schema):
+    id = fields.UUID(dump_only=True)
+    job_id = fields.UUID(load_only=True)
+    instructions = fields.Dict()
+
+    @post_load
+    def create_job_instructions(self, data, **kwargs):
+        return JobInstructions(**data)
+
+class RepositorySchema(Schema):
+    id = fields.UUID()
+    user_id = fields.UUID()
+    provider = fields.Str()
+    name = fields.Str()
+    file_path = fields.Str(required=False)
+
 class JobSchema(Schema):
     id = fields.UUID(dump_only=True)
     state = fields.Str(dump_only=True)
-    repository_id = fields.UUID(required=True)
+    repository_id = fields.UUID(required=True, load_only=True)
+    repository = fields.Nested(RepositorySchema)
 
     @validates('repository_id')
     def validate_rid(self, data, **kwargs):
@@ -22,21 +39,6 @@ class JobSchema(Schema):
     @post_load
     def create_job(self, data, **kwargs):
         return Job(**data)
-
-class JobInstructionsSchema(Schema):
-    id = fields.UUID(dump_only=True)
-    job_id = fields.UUID()
-    instructions = fields.List(fields.Str())
-
-    @post_load
-    def create_job_instructions(self, data, **kwargs):
-        return JobInstructions(**data)
-
-class RepositorySchema(Schema):
-    id = fields.UUID()
-    provider = fields.Str()
-    name = fields.Str()
-    file_path = fields.Str(required=False)
 
 class GetRepositoryRequest(Schema):
     rid = fields.UUID()
@@ -51,6 +53,12 @@ class GetRepositoryRequest(Schema):
 class PostRepositoryRequest(Schema):
     provider = fields.Str(required=True, validate=validate.OneOf(PROVIDERS))
     name = fields.Str(required=True)
+    user_id = fields.UUID(required=True)
+
+    @validates('user_id')
+    def validate_user(self, data, **kwargs):
+        # TODO: Finish this
+        pass
 
     @post_load
     def load_repo(self, data, **kwargs):

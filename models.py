@@ -10,13 +10,15 @@ db = SQLAlchemy()
 
 class Repository(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
+    user_id = db.Column(UUID(as_uuid=True), unique=True)
     provider = db.Column(db.String(127), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     file_path = db.Column(db.String(255), nullable=False, default=settings.DEFAULT_CI_FILE)
 
-    def __init__(self, provider, name):
+    def __init__(self, provider, name, user_id):
         self.provider = provider
         self.name = name
+        self.user_id = user_id
 
 class Job(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
