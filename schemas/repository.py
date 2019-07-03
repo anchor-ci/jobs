@@ -18,11 +18,21 @@ class JobInstructionsSchema(Schema):
         return JobInstructions(**data)
 
 class RepositorySchema(Schema):
-    id = fields.UUID()
-    user_id = fields.UUID()
-    provider = fields.Str()
-    name = fields.Str()
-    file_path = fields.Str(required=False)
+    id = fields.UUID(dump_only=True)
+    owner = fields.UUID(required=True)
+    provider = fields.Str(required=True, validate=validate.OneOf(PROVIDERS))
+    name = fields.Str(required=True)
+    file_path = fields.Str()
+    is_organization = fields.Bool(default=False)
+
+    @validates('owner')
+    def validate_user(self, data, **kwargs):
+        # TODO: Finish this
+        pass
+
+    @post_load
+    def load_repo(self, data, **kwargs):
+        return Repository(**data)
 
 class JobSchema(Schema):
     id = fields.UUID(dump_only=True)
@@ -49,17 +59,3 @@ class GetRepositoryRequest(Schema):
         result = db.session.query(exists().where(Repository.id == data)).scalar()
         if not result:
             raise ValidationError(f"Repository {data} does not exist")
-
-class PostRepositoryRequest(Schema):
-    provider = fields.Str(required=True, validate=validate.OneOf(PROVIDERS))
-    name = fields.Str(required=True)
-    user_id = fields.UUID(required=True)
-
-    @validates('user_id')
-    def validate_user(self, data, **kwargs):
-        # TODO: Finish this
-        pass
-
-    @post_load
-    def load_repo(self, data, **kwargs):
-        return Repository(**data)

@@ -8,7 +8,6 @@ from marshmallow.exceptions import ValidationError
 from schemas.repository import (
     RepositorySchema,
     GetRepositoryRequest,
-    PostRepositoryRequest
 )
 
 repo_bp = Blueprint('repository', __name__)
@@ -52,7 +51,7 @@ class Repository(Resource):
         return result
 
     def post(self, rid=None):
-        schema = PostRepositoryRequest()
+        schema = RepositorySchema()
         response = {}, 200
 
         try:
@@ -60,8 +59,7 @@ class Repository(Resource):
             if result:
                 db.session.add(result)
                 db.session.commit()
-            loaded_schema = RepositorySchema()
-            response = loaded_schema.dump(result), 200
+            response = schema.dump(result), 200
         except ValidationError as e:
             response = e.messages, 400
 
