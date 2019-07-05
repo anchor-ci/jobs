@@ -1,6 +1,8 @@
 import redis
 import requests
 
+from yaml import safe_load
+from yaml.scanner import ScannerError
 from config import get_settings
 from flask import request, Blueprint
 from flask_restful import Api, Resource, url_for
@@ -25,13 +27,23 @@ class Dock(Resource):
         payload = {
             "repository": job.repository.name,
             "provider": job.repository.provider,
-            "user": str(job.repository.user_id),
-            "file_path": job.repository.file_path
+            "owner": str(job.repository.owner),
+            "file_path": job.repository.file_path,
+            "is_organization": job.repository.is_organization
         }
 
         response = requests.get(settings.AUTH_FILE_ENDPOINT, json=payload)
-        print(response.json())
-        return {"hello":"Bye"}
+
+        if response.status_code >= 400:
+            return None
+
+        data = response.json()
+        content = data.get('content')
+
+        try:
+            return safe_load(content)
+        except ScannerError:
+            return None
 
     def _create_job(self, rid):
         schema = JobSchema()
@@ -45,10 +57,15 @@ class Dock(Resource):
         db.session.add(job)
         db.session.commit()
 
+        instructions = self._grab_instructions(job)
+
         instruction_payload = {
             "job_id": job.id,
-            "instructions": self._grab_instructions(job)
+            "instructions": instructions
         }
+
+        if not instructions:
+            return {"Error": "Failed to grab instructions"}, 400
 
         i_job = i_schema.load(instruction_payload)
 
