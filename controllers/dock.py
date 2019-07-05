@@ -1,5 +1,6 @@
 import redis
 import requests
+import json
 
 from yaml import safe_load
 from yaml.scanner import ScannerError
@@ -76,7 +77,10 @@ class Dock(Resource):
         payload["instruction_set"] = i_schema.dump(i_job)
 
         # Add to the redis database for the job workers to pickup
-        redis.set(self._get_job_key(str(job.id)), str(payload))
+        redis.set(
+            self._get_job_key(str(job.id)),
+            json.dumps(payload)
+        )
 
         return payload, 201
 
