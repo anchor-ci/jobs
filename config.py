@@ -6,7 +6,7 @@ class Settings:
     DEFAULT_CI_FILE = ".anchorci.yml"
 
 class NonprodSettings(Settings):
-    SQLALCHEMY_DATABASE_URI = f"postgres://postgres:docker@{os.environ.get('DB_URL', 'db')}:5432"
+    SQLALCHEMY_DATABASE_URI = f"postgres://postgres:docker@{os.environ.get('DB_URL', 'db')}:{os.environ.get('DB_PORT', 5432)}"
     REDIS_CONNECTION_URL = "redis"
     REDIS_CONNECTION_PORT = 6379
     AUTH_SVC_URL = "http://auth:9000"

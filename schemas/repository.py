@@ -50,6 +50,20 @@ class JobSchema(Schema):
     def create_job(self, data, **kwargs):
         return Job(**data)
 
+class GetUserRepositoryRequest(Schema):
+    uuid = fields.UUID()
+
+    @validates('uuid')
+    def verify_user(self, data, **kwargs):
+        # TODO: Verify the user exists
+        pass
+
+    @post_load
+    def get_repo_by_user(self, data, **kwargs):
+        return Repository.query.filter_by(
+            owner=data.get('uuid')
+        ).all()
+
 class GetRepositoryRequest(Schema):
     rid = fields.UUID()
     jobs = fields.Nested(JobSchema, many=True, dump_only=True)

@@ -8,10 +8,28 @@ from marshmallow.exceptions import ValidationError
 from schemas.repository import (
     RepositorySchema,
     GetRepositoryRequest,
+    GetUserRepositoryRequest
 )
 
 repo_bp = Blueprint('repository', __name__)
 api = Api(repo_bp)
+
+class UserRepository(Resource):
+    def get(self, uuid):
+        schema = GetUserRepositoryRequest()
+
+        try:
+            loaded = schema.load({"uuid": uuid})
+
+            if not loaded:
+                return {}, 404
+
+            repo_schema = RepositorySchema(many=True)
+            response = repo_schema.dump(loaded), 200
+        except ValidationError as e:
+            response = e.messages, 400
+
+        return response
 
 class Repository(Resource):
     def _get_id(self, rid):
@@ -72,3 +90,4 @@ class Repository(Resource):
         pass
 
 api.add_resource(Repository, '/repo', '/repo/<rid>')
+api.add_resource(UserRepository, '/repo/user/<uuid>')
