@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load, validates, validate
+from marshmallow import Schema, fields, post_load, validates, validate, validates_schema
 from marshmallow.exceptions import ValidationError
 from sqlalchemy import exists
 from models import Repository, Job, db, JobInstructions
@@ -29,6 +29,15 @@ class RepositorySchema(Schema):
     def validate_user(self, data, **kwargs):
         # TODO: Finish this
         pass
+
+    @validates_schema
+    def validate_name(self, data, **kwargs):
+        name = data.get('name')
+        owner = data.get('owner')
+
+        result = db.session.query(exists().where(Repository.owner == owner).where(Repository.name == name)).scalar()
+        if result:
+            raise ValidationError(f"Repository named {name} with owner {owner} already exists!")
 
     @post_load
     def load_repo(self, data, **kwargs):
