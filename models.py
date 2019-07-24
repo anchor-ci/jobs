@@ -38,7 +38,7 @@ class Job(db.Model):
         self.state = "STARTING"
 
     def __repr__(self):
-        return f"<{self.repository_id}: {self.repository} | {self.state}>"
+        return f"<{self.repository} | {self.state}>"
 
 class JobInstructions(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)

@@ -1,6 +1,7 @@
 import requests
 
 from config import get_settings
+from controllers.jobs import job
 from controllers.repository import repo_bp
 from controllers.dock import dock_bp
 from models import db, JobInstructions, Repository, Job
@@ -20,6 +21,7 @@ def get_app(config=get_settings()):
 def register_blueprints(app):
     app.register_blueprint(repo_bp)
     app.register_blueprint(dock_bp)
+    app.register_blueprint(job)
 
 def register_extensions(app):
     db.init_app(app)
