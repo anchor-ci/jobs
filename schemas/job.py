@@ -3,6 +3,7 @@ from models import Job, JobHistory
 from schemas.repository import JobSchema
 
 class JobHistorySchema(Schema):
+    id = fields.UUID(dump_only=True)
     job_id = fields.UUID(load_only=True)
     history = fields.List(fields.Dict())
     job = fields.Nested(JobSchema, dump_only=True)

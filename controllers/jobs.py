@@ -5,7 +5,8 @@ from models import db, Job, JobInstructions, Repository, JobHistory
 from config import get_settings
 from schemas.repository import JobSchema, JobInstructionsSchema
 from schemas.job import JobHistorySchema
-from schemas.request_schemas import HistoryAddSchema
+from schemas.request_schemas import HistoryUpdateSchema
+from queries import get_job_history, job_history_exists, get_job_history_condition
 
 job = Blueprint('job', __name__)
 api = Api(job)
@@ -13,16 +14,26 @@ settings = get_settings()
 
 class JobHistoryController(Resource):
     def _get_one(self, hid):
-        pass
+        schema = JobHistorySchema()
+        data = get_job_history(hid)
+        return schema.dump(data), 200
 
     def _get_all(self):
-        pass
+        return [], 404
 
-    def get(self, jid):
+    def get(self, jid, hid=None):
         """
         GET is used to grab the entire history by job id
         """
-        pass
+        try:
+            if hid:
+                response = self._get_one(hid)
+            else:
+                response = self._get_all(jid)
+        except ValidationError as e:
+            response = e.messages, 400
+
+        return response
 
     def post(self, jid, hid=None):
         """
@@ -32,7 +43,7 @@ class JobHistoryController(Resource):
             return None, 400
 
         schema = JobHistorySchema()
-        payload = {**request.json, **{"job_id": jid, "history_id": hid}}
+        payload = {**request.json, **{"job_id": jid}}
         response = {}, 200
 
         try:
@@ -41,7 +52,7 @@ class JobHistoryController(Resource):
             db.session.add(data)
             db.session.commit()
 
-            response = schema.dump(data), 200
+            response = schema.dump(data), 201
         except ValidationError as e:
             response = e.messages, 400
 
@@ -54,16 +65,22 @@ class JobHistoryController(Resource):
         if request.json == None:
             return None, 400
 
-        schema = HistoryAddSchema()
-        payload = {**request.json, **{"job_id": jid, "history_id": hid}}
+        schema = HistoryUpdateSchema()
+        payload = {**request.json, **{"job_id": jid, "id": hid}}
         response = {}, 200
 
         try:
             data = schema.load(payload)
 
-            print(data)
+            if not job_history_exists(hid):
+                return {"error": f"{hid} doesn't exist"}, 400
 
-            response = data, 200
+            history = get_job_history_condition(JobHistory.id == hid)
+            history.update(data)
+
+            db.session.commit()
+
+            response = {}, 204
         except ValidationError as e:
             response = e.messages, 400
 
