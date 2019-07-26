@@ -1,12 +1,20 @@
 import datetime
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID, JSONB, JSON
 from uuid import uuid4
 from config import get_settings
 
 settings = get_settings()
 db = SQLAlchemy()
+
+VALID_STATES = (
+    "STARTING",
+    "RUNNING",
+    "SUCCESS",
+    "FAILED",
+    "TERMINATED"
+)
 
 class Repository(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
@@ -57,3 +65,21 @@ class JobInstructions(db.Model):
         self.job_id = linked_job.id
         self.job = linked_job
         self.instructions = instructions
+
+class JobHistory(db.Model):
+    id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
+    job_id = db.Column(UUID(as_uuid=True), db.ForeignKey(Job.id))
+    job = db.relationship(Job, cascade="all,delete")
+    history = db.Column(JSON)
+
+    def __init__(self, history=[], job_id=None, job=None):
+        if not any((job_id, job)):
+            raise ValueError("Must specify a job id, or a job")
+
+        linked_job = job
+        if job_id:
+            linked_job = Job.query.filter_by(id=job_id).first()
+
+        self.job_id = linked_job.id
+        self.job = linked_job
+        self.history = history

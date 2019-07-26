@@ -1,30 +1,12 @@
 from marshmallow import Schema, post_load, validates, fields, EXCLUDE
-from models import Job
+from models import Job, JobHistory
+from schemas.repository import JobSchema
 
-class CommitAuthor(Schema):
-    author = fields.Str()
+class JobHistorySchema(Schema):
+    job_id = fields.UUID(load_only=True)
+    history = fields.List(fields.Dict())
+    job = fields.Nested(JobSchema, dump_only=True)
 
-    class Meta:
-        unknown = EXCLUDE
-
-class Repository(Schema):
-    id = fields.Number()
-    full_name = fields.Str()
-    private = fields.Bool()
-
-    class Meta:
-        unknown = EXCLUDE
-
-class CommitSchema(Schema):
-    ref = fields.Str()
-    message = fields.Str()
-    time = fields.DateTime()
-    url = fields.Url()
-    author = fields.Nested(CommitAuthor)
-    repository = fields.Nested(Repository)
-    added = fields.List(fields.Str())
-    removed = fields.List(fields.Str())
-    modified = fields.List(fields.Str())
-
-    class Meta:
-        unknown = EXCLUDE
+    @post_load
+    def create_history(self, data, **kwargs):
+        return JobHistory(**data)
