@@ -5,8 +5,15 @@ from models import db, Job, JobInstructions, Repository, JobHistory
 from config import get_settings
 from schemas.repository import JobSchema, JobInstructionsSchema
 from schemas.job import JobHistorySchema
-from schemas.request_schemas import HistoryUpdateSchema
-from queries import get_job_history, job_history_exists, get_job_history_condition
+from schemas.request_schemas import HistoryUpdateSchema, JobUpdateSchema
+from queries import (
+    get_job_history,
+    job_history_exists,
+    get_job_history_condition,
+    get_job,
+    job_exists,
+    get_job_condition
+)
 
 job = Blueprint('job', __name__)
 api = Api(job)
@@ -87,8 +94,10 @@ class JobHistoryController(Resource):
         return response
 
 class JobController(Resource):
-    def _get_one(self, jid):
+    def _get_one(self, rid, jid):
         schema = JobSchema()
+        job = get_job(jid)
+        return schema.dump(job)
 
     def _get_all(self, rid):
         schema = JobSchema(many=True)
@@ -109,6 +118,31 @@ class JobController(Resource):
 
         if not response[0]:
             response = response[0], 400
+
+        return response
+
+    def put(self, rid, jid):
+        if request.json == None or not request.json:
+            return None, 400
+
+        schema = JobUpdateSchema()
+        payload = {**request.json, **{"id": jid}}
+        response = {}, 200
+
+        try:
+            data = schema.load(payload)
+
+            if not job_exists(jid):
+                return {"error": f"{jid} doesn't exist"}, 400
+
+            job = get_job_condition(Job.id == jid)
+            job.update(data)
+
+            db.session.commit()
+
+            response = {}, 204
+        except ValidationError as e:
+            response = e.messages, 400
 
         return response
 

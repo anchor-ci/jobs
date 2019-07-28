@@ -9,3 +9,12 @@ def get_job_history_condition(condition):
 
 def get_job_history(hid):
     return JobHistory.query.get(hid)
+
+def get_job(jid):
+    return Job.query.get(jid)
+
+def job_exists(jid):
+    return bool(db.session.query(exists().where(Job.id == jid)).scalar())
+
+def get_job_condition(condition):
+    return Job.query.filter(condition)
