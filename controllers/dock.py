@@ -8,6 +8,7 @@ from config import get_settings
 from flask import request, Blueprint
 from flask_restful import Api, Resource, url_for
 from schemas.repository import JobSchema, JobInstructionsSchema
+from schemas.job import JobHistorySchema
 from marshmallow.exceptions import ValidationError
 from models import db, Job, JobInstructions
 
@@ -48,7 +49,9 @@ class Dock(Resource):
 
     def _create_job(self, rid):
         schema = JobSchema()
+        historySchema = JobHistorySchema()
         i_schema = JobInstructionsSchema()
+
         job_payload = {
             "repository_id": rid
         }
@@ -69,12 +72,17 @@ class Dock(Resource):
             return {"Error": "Failed to grab instructions"}, 400
 
         i_job = i_schema.load(instruction_payload)
+        history = self._create_history(job.id)
 
         db.session.add(i_job)
+        db.session.add(history)
+
+        # Don't commit until after history is made and added
         db.session.commit()
 
         payload = schema.dump(job)
         payload["instruction_set"] = i_schema.dump(i_job)
+        payload["history"] = historySchema.dump(history)
 
         # Add to the redis database for the job workers to pickup
         redis.set(
@@ -83,6 +91,11 @@ class Dock(Resource):
         )
 
         return payload, 201
+
+    def _create_history(self, jid):
+        schema = JobHistorySchema()
+        data = schema.load({"job_id": jid})
+        return data
 
     def post(self, rid):
         try:
