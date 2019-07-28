@@ -93,7 +93,7 @@ class JobHistoryController(Resource):
 
         return response
 
-class JobController(Resource):
+class RepositoryJobController(Resource):
     def _get_one(self, rid, jid):
         schema = JobSchema()
         job = get_job(jid)
@@ -121,7 +121,30 @@ class JobController(Resource):
 
         return response
 
-    def put(self, rid, jid):
+class JobController(Resource):
+    def _get_one(self, jid):
+        schema = JobSchema()
+        item = get_job(jid)
+        return schema.dump(item)
+
+    def get(self, jid=None):
+        if not jid:
+            return {}, 400
+
+        response = {}, 200
+
+        try:
+            if jid:
+                response = self._get_one(jid), 200
+        except ValidationError as e:
+            response = e.messages, 400
+
+        if not response[0]:
+            response = response[0], 400
+
+        return response
+
+    def put(self, jid):
         if request.json == None or not request.json:
             return None, 400
 
@@ -146,5 +169,6 @@ class JobController(Resource):
 
         return response
 
+api.add_resource(JobController, '/jobs/<jid>')
 api.add_resource(JobHistoryController, '/history/<jid>', '/history/<jid>/<hid>')
-api.add_resource(JobController, '/job/<rid>', '/job/<rid>/<jid>')
+api.add_resource(RepositoryJobController, '/job/<rid>', '/job/<rid>/<jid>')
