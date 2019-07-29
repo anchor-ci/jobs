@@ -19,6 +19,54 @@ job = Blueprint('job', __name__)
 api = Api(job)
 settings = get_settings()
 
+class HistoryController(Resource):
+    def _get_one(self, hid):
+        schema = JobHistorySchema()
+        data = get_job_history(hid)
+        return schema.dump(data), 200
+
+    def get(self, hid=None):
+        """
+        GET is used to grab the entire history by job id
+        """
+        if not hid:
+            return None, 400
+
+        try:
+            response = self._get_one(hid)
+        except ValidationError as e:
+            response = e.messages, 400
+
+        return response
+
+    def put(self, hid=None):
+        """
+        PUT is used to update a line in the actual history itself
+        """
+        if request.json == None or not request.json or not hid:
+            return None, 400
+
+        schema = HistoryUpdateSchema()
+        payload = {**request.json, **{"id": hid}}
+        response = {}, 200
+
+        try:
+            data = schema.load(payload)
+
+            if not job_history_exists(hid):
+                return {"error": f"{hid} doesn't exist"}, 400
+
+            history = get_job_history_condition(JobHistory.id == hid)
+            history.update(data)
+
+            db.session.commit()
+
+            response = {}, 204
+        except ValidationError as e:
+            response = e.messages, 400
+
+        return response
+
 class JobHistoryController(Resource):
     def _get_one(self, hid):
         schema = JobHistorySchema()
@@ -169,6 +217,7 @@ class JobController(Resource):
 
         return response
 
+api.add_resource(HistoryController, '/histories/<hid>')
 api.add_resource(JobController, '/jobs/<jid>')
 api.add_resource(JobHistoryController, '/history/<jid>', '/history/<jid>/<hid>')
 api.add_resource(RepositoryJobController, '/job/<rid>', '/job/<rid>/<jid>')

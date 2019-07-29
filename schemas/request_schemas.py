@@ -3,7 +3,7 @@ from models import VALID_STATES
 from marshmallow.exceptions import ValidationError
 
 class HistoryUpdateSchema(Schema):
-    job_id = fields.UUID(required=True, load_only=True)
+    job_id = fields.UUID(load_only=True)
     id = fields.UUID(required=True, load_only=True)
     history = fields.List(fields.Dict(required=True))
 
