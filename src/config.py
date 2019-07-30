@@ -6,10 +6,14 @@ class Settings:
     DEFAULT_CI_FILE = ".anchorci.yml"
 
 class NonprodSettings(Settings):
-    SQLALCHEMY_DATABASE_URI = f"postgres://postgres:docker@{os.environ.get('DB_URL', 'db')}:{os.environ.get('DB_PORT', 5432)}"
-    REDIS_CONNECTION_URL = "redis"
-    REDIS_CONNECTION_PORT = 6379
-    AUTH_SVC_URL = "http://auth:9000"
+    DB_URL = os.environ.get('DB_URL')
+    DB_PORT = os.environ.get('DB_PORT')
+    DB_USER = os.environ.get('DB_USER')
+    DB_PASS = os.environ.get('DB_PASS')
+    SQLALCHEMY_DATABASE_URI = f"postgres://{DB_USER}:{DB_PASS}@{DB_URL}:{DB_PORT}"
+    REDIS_CONNECTION_URL = os.environ.get('REDIS_URL')
+    REDIS_CONNECTION_PORT = os.environ.get('REDIS_PORT')
+    AUTH_SVC_URL = os.environ.get('AUTH_URL')
     AUTH_FILE_ENDPOINT = "".join([AUTH_SVC_URL, "/proxy/file"])
 
 class ProdSettings(Settings):

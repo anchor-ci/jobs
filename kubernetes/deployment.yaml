@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobs
+  labels:
+    app: jobs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jobs
+  template:
+    metadata:
+      labels:
+        app: jobs
+    spec:
+      containers:
+        - name: service
+          image: jobs:latest
+          env:
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: docker
+            - name: DB_URL
+              value: postgres.default.svc.cluster.local
+            - name: DB_PORT
+              value: "5432"
+            - name: AUTH_URL
+              value: auth.default.svc.cluster.local
+            - name: REDIS_URL
+              value: redis.default.svc.cluster.local
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - containerPort: 8080
