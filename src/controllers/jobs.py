@@ -23,6 +23,10 @@ class HistoryController(Resource):
     def _get_one(self, hid):
         schema = JobHistorySchema()
         data = get_job_history(hid)
+
+        if not data:
+            return {}, 404
+
         return schema.dump(data), 200
 
     def get(self, hid=None):
@@ -57,6 +61,7 @@ class HistoryController(Resource):
                 return {"error": f"{hid} doesn't exist"}, 400
 
             history = get_job_history_condition(JobHistory.id == hid)
+
             history.update(data)
 
             db.session.commit()
