@@ -18,3 +18,7 @@ def job_exists(jid):
 
 def get_job_condition(condition):
     return Job.query.filter(condition)
+
+def get_latest_history_from_job(jid):
+    item = JobHistory.query.filter_by(job_id=jid).order_by(JobHistory.created_at).scalar()
+    return item

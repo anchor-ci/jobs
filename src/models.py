@@ -37,6 +37,7 @@ class Job(db.Model):
     state = db.Column(db.String(127), nullable=False)
     repository_id = db.Column(UUID(as_uuid=True), db.ForeignKey(Repository.id))
     repository = db.relationship(Repository, cascade="all,delete")
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def __init__(self, repository_id):
         repo = Repository.query.filter_by(id=repository_id).first()
@@ -71,6 +72,7 @@ class JobHistory(db.Model):
     job_id = db.Column(UUID(as_uuid=True), db.ForeignKey(Job.id))
     job = db.relationship(Job, cascade="all,delete")
     history = db.Column(JSON)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def __init__(self, history=[], job_id=None, job=None):
         if not any((job_id, job)):

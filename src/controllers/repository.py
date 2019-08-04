@@ -5,6 +5,9 @@ from models import db, Job
 from flask import Blueprint, jsonify, request
 from flask_restful import Api, Resource, url_for
 from marshmallow.exceptions import ValidationError
+from queries import get_latest_history_from_job
+from schemas.job import JobHistorySchema
+from utils import validate_uuid
 from schemas.repository import (
     RepositorySchema,
     GetRepositoryRequest,
@@ -14,16 +17,23 @@ from schemas.repository import (
 repo_bp = Blueprint('repository', __name__)
 api = Api(repo_bp)
 
+@repo_bp.route("/latest/history/<jid>", methods=["GET"])
+def get_latest_repo(jid):
+    schema = JobHistorySchema()
+
+    if not validate_uuid(jid, version=1):
+        return jsonify({"error": "Invalid UUID"}), 400
+
+    history = get_latest_history_from_job(jid)
+    data = schema.dump(history)
+    return jsonify(data), 200
+
 class UserRepository(Resource):
     def get(self, uuid):
         schema = GetUserRepositoryRequest()
 
         try:
             loaded = schema.load({"uuid": uuid})
-
-            if not loaded:
-                return {}, 404
-
             repo_schema = RepositorySchema(many=True)
             response = repo_schema.dump(loaded), 200
         except ValidationError as e:
