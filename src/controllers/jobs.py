@@ -60,9 +60,10 @@ class HistoryController(Resource):
             if not job_history_exists(hid):
                 return {"error": f"{hid} doesn't exist"}, 400
 
-            history = get_job_history_condition(JobHistory.id == hid)
+            history = get_job_history(hid)
+            history.history = [*history.history, *data.get("history", [])]
 
-            history.update(data)
+            print(history.history)
 
             db.session.commit()
 
