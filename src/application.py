@@ -1,6 +1,7 @@
 import requests
 
 from config import get_settings
+from controllers.images import images
 from controllers.jobs import job
 from controllers.repository import repo_bp
 from controllers.dock import dock_bp
@@ -22,6 +23,7 @@ def register_blueprints(app):
     app.register_blueprint(repo_bp)
     app.register_blueprint(dock_bp)
     app.register_blueprint(job)
+    app.register_blueprint(images, url_prefix="/images")
 
 def register_extensions(app):
     db.init_app(app)
