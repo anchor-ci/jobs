@@ -63,8 +63,6 @@ class HistoryController(Resource):
             history = get_job_history(hid)
             history.history = [*history.history, *data.get("history", [])]
 
-            print(history.history)
-
             db.session.commit()
 
             response = {}, 204
@@ -155,7 +153,7 @@ class RepositoryJobController(Resource):
 
     def _get_all(self, rid):
         schema = JobSchema(many=True)
-        jobs = Job.query.filter(Job.repository_id == rid).all()
+        jobs = Job.query.filter(Job.repository_id == rid).order_by(Job.created_at.desc()).all()
         loaded_jobs = schema.dump(jobs)
         return loaded_jobs
 
