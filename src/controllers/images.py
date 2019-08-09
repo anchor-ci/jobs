@@ -34,6 +34,9 @@ def add_filter(image, height, width):
 @images.route('/repo/<int:height>')
 @images.route('/repo/<int:height>/<int:width>')
 def get_repo_image(height=256, width=1024):
+    if request.args.get('repo'):
+        random.seed(hash(request.args.get('repo')))
+
     buffer = BytesIO()
     image = Image.new('RGB', (width, height))
     draw = ImageDraw.Draw(image)
