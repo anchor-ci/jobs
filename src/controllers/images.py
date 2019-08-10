@@ -7,24 +7,25 @@ from io import BytesIO
 images = Blueprint('images', __name__)
 
 SCALE = 500
-QUALITY = 75
+QUALITY = 100
 BOX_HEIGHT = 32
 BOX_WIDTH = 32
 
 FILLS = (
     (129, 252, 237),
     (255, 202, 88),
-    (111, 255, 176)
+    (111, 255, 176),
+    #(162,66,61)
 )
 
 def create_image(drawer, height, width):
+    fill = random.choice(FILLS)
     drawer.rectangle([(0, 0), (width, height)], fill=(255, 255, 255))
 
     for y in range(0, height):
         for x in range(0, width):
             if (x % BOX_WIDTH == 0) and (y % BOX_WIDTH == 0):
                 if random.choice([False, True]):
-                    fill = random.choice(FILLS)
                     drawer.rectangle([(x, y), (x + BOX_WIDTH, y + BOX_HEIGHT)], fill=fill)
 
 def add_filter(image, height, width):

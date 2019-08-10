@@ -48,6 +48,7 @@ class JobSchema(Schema):
     state = fields.Str(dump_only=True)
     repository_id = fields.UUID(required=True, load_only=True)
     repository = fields.Nested(RepositorySchema)
+    created_at = fields.DateTime()
 
     @validates('repository_id')
     def validate_rid(self, data, **kwargs):
