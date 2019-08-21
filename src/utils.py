@@ -7,3 +7,6 @@ def validate_uuid(uuid_string, version=4):
         return False
 
     return True
+
+def error_response(error):
+    return {"error": error}

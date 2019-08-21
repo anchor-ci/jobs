@@ -30,11 +30,6 @@ def register_extensions(app):
 
     with app.app_context():
         # TODO: Remove before prod deployment ;D
-        try:
-            pass
-        except:
-            pass
-
         db.create_all()
         db.session.commit()
 

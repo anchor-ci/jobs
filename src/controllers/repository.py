@@ -8,6 +8,7 @@ from marshmallow.exceptions import ValidationError
 from queries import get_latest_history_from_job
 from schemas.job import JobHistorySchema
 from utils import validate_uuid
+from models import Repository
 from schemas.repository import (
     RepositorySchema,
     GetRepositoryRequest,
@@ -41,23 +42,20 @@ class UserRepository(Resource):
 
         return response
 
-class Repository(Resource):
+class RepositoryController(Resource):
     def _get_id(self, rid):
-        request_schema = GetRepositoryRequest()
+        response = None
 
         try:
-            payload = {
-                "rid": rid,
-                "jobs": Job.query.filter_by(repository_id=rid).all()
-            }
+            print(f"RID: {rid}")
+            repository = Repository.query.get(rid)
+            print(repository)
 
-            result = request_schema.load(payload)
-            if not result:
+            if not repository:
                 response = {}, 404
             else:
                 schema = RepositorySchema()
-                result = schema.dump(result)
-                response = result, 200
+                response = schema.dump(repository), 200
         except ValidationError as e:
             response = e.messages, 400
 
@@ -99,5 +97,5 @@ class Repository(Resource):
     def delete(self, rid=None):
         pass
 
-api.add_resource(Repository, '/repo', '/repo/<rid>')
+api.add_resource(RepositoryController, '/repo', '/repo/<rid>')
 api.add_resource(UserRepository, '/repo/user/<uuid>')
