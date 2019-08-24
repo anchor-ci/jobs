@@ -19,6 +19,10 @@ job = Blueprint('job', __name__)
 api = Api(job)
 settings = get_settings()
 
+class StatsController(Resource):
+    def get(self, rid):
+        return {}
+
 class HistoryController(Resource):
     def _get_one(self, hid):
         schema = JobHistorySchema()
@@ -221,6 +225,8 @@ class JobController(Resource):
 
         return response
 
+#TODO: Move stats controller to repository
+api.add_resource(StatsController, '/stats/<rid>')
 api.add_resource(HistoryController, '/histories/<hid>')
 api.add_resource(JobController, '/jobs/<jid>')
 api.add_resource(JobHistoryController, '/history/<jid>', '/history/<jid>/<hid>')
