@@ -1,5 +1,7 @@
 # TODO: Enable reporting on if a job is valid of not. See notes.
-from exceptions import JobInvalidFormatException
+from schemas.stage import StageSchema
+from marshmallow.exceptions import ValidationError
+from exceptions import JobInvalidFormatException, JobValidationException
 
 class JobConstructor:
     def __init__(self, content: dict):
@@ -12,14 +14,14 @@ class JobConstructor:
             }
         }
 
-    def _validate_job(self, k, v):
+    def _validate_base(self, k, v):
         return type(k) is str and type(v) is dict
 
     def _create_jobs(self):
         jobs = []
 
         for job, val in self.base_content.items():
-            if not self._validate_job(job, val):
+            if not self._validate_base(job, val):
                 raise JobInvalidFormatException(
                     f"Should be string, map.. Got ({'='.join([type(job), job])}), ({'='.join([type(val), val])})."
                 )
@@ -35,18 +37,24 @@ class JobConstructor:
         stages = []
 
         for name, val in definition.items():
-            if not self._validate_stage(name, val):
+            if not self._validate_base(name, val):
                 raise JobInvalidFormatException(
                     f"Should be string, map.. Got ({'='.join([type(name), name])}), ({'='.join([type(val), val])})."
                 )
 
-            jobs.append({
-                "name": job,
-                "stages": self._create_stages(val)
-            })
+            schema = StageSchema()
 
+            try:
+                stages.append({
+                    "name": name,
+                    "stages": schema.load(val)
+                })
+            except ValidationError as e:
+                raise JobValidationException(
+                    e.messages
+                )
 
-        print(definition)
+        return stages
 
     def create(self) -> dict:
-        payload = self._create_payload()
+        return self._create_payload()

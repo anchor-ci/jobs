@@ -16,3 +16,4 @@ bread_front/node_modules
 # production
 /build
 jobs/
+.tox/

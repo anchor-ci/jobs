@@ -9,3 +9,5 @@ class JobInvalidException(Exception):
 class JobInvalidFormatException(JobInvalidException):
     pass
 
+class JobValidationException(JobInvalidException):
+    pass

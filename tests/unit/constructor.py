@@ -10,7 +10,7 @@ PAYLOAD = {
     'deploy': {
         'dev': {
             'auto-build': {
-                'buildpack': '',
+                'buildpack': 'myimage:dev',
                 'name': ''
             },
             'image': 'debian:stable-slim',
@@ -22,14 +22,36 @@ PAYLOAD = {
     }
 }
 
+OUTPUT = {
+    "payload": {
+        "jobs": [
+            {
+                "name": "deploy",
+                "stages": [
+                    {
+                        "name": "dev",
+                        "auto-build": {
+                            "buildpack": "myimage:dev",
+                            "name": ""
+                        },
+                        "image": "debian:stable-slim",
+                        "script": [
+                            "echo hi",
+                            "echo finished job!"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
+
 @pytest.fixture(scope='function')
 def constructor():
     return JobConstructor(PAYLOAD)
 
 def test_constructor_can_create_payload(constructor):
     payload = constructor._create_payload()
-    assert "payload" in payload.keys()
 
-def test_constructor_can_create_jobs(constructor):
-    jobs = constructor._create_jobs()
+    assert payload == OUTPUT
 
