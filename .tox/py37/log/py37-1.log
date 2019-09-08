@@ -1,0 +1,3 @@
+action: py37, msg: envreport
+cwd: /home/christianbrintnall/Projects/ci/bread_jobs
+cmd: /home/christianbrintnall/Projects/ci/bread_jobs/.tox/py37/bin/python -m pip freeze

@@ -4,7 +4,7 @@ from config import get_settings
 from controllers.images import images
 from controllers.jobs import job
 from controllers.repository import repo_bp
-from controllers.dock import dock_bp
+from controllers.dock.dock import dock_bp
 from models import db, JobInstructions, Repository, Job
 from flask import Flask
 from flask_restful import Resource, Api
@@ -14,6 +14,7 @@ def get_app(config=get_settings()):
     app = Flask(__name__)
     app.config.from_object(config)
 
+    apply_settings(app)
     register_extensions(app)
     register_blueprints(app)
 
@@ -24,6 +25,9 @@ def register_blueprints(app):
     app.register_blueprint(dock_bp)
     app.register_blueprint(job)
     app.register_blueprint(images, url_prefix="/images")
+
+def apply_settings(app):
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
 def register_extensions(app):
     db.init_app(app)
