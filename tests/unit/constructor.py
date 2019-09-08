@@ -7,16 +7,16 @@ import pytest
 from controllers.dock.runner import JobConstructor
 
 PAYLOAD = {
-    'deploy': {
-        'dev': {
-            'auto-build': {
-                'buildpack': 'myimage:dev',
-                'name': ''
+    "deploy": {
+        "dev": {
+            "auto-build": {
+                "buildpack": "",
+                "name": "myimage:dev"
             },
-            'image': 'debian:stable-slim',
-            'script': [
-                'echo hi',
-                'echo finished job!'
+            "image": "debian:stable-slim",
+            "script": [
+                "echo hi",
+                "echo finished job!"
             ]
         }
     }
@@ -31,8 +31,8 @@ OUTPUT = {
                     {
                         "name": "dev",
                         "auto-build": {
-                            "buildpack": "myimage:dev",
-                            "name": ""
+                            "buildpack": "",
+                            "name": "myimage:dev"
                         },
                         "image": "debian:stable-slim",
                         "script": [
@@ -52,6 +52,5 @@ def constructor():
 
 def test_constructor_can_create_payload(constructor):
     payload = constructor._create_payload()
-
     assert payload == OUTPUT
 

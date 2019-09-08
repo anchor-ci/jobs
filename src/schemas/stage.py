@@ -12,12 +12,10 @@ class AutobuildSchema(Schema):
     """
     # TODO: Define missing field for buildpack, should be one that can auto detect image
     buildpack = fields.Str()
-
-    # TODO: Add in image validation for autobuild name field.
-    name = fields.Str(required=True)
+    name = fields.Str(required=True, validate=image_validation)
 
 class StageSchema(Schema):
     # TODO: This is only valid if it's a valid image name
-    image = fields.Str(missing="debian:stable-slim")
+    image = fields.Str(missing="debian:stable-slim", validate=image_validation)
     script = fields.List(fields.Str(), required=True)
-    autobuild = fields.Nested(AutobuildSchema, data_key="auto-build", validate=image_validation)
+    autobuild = fields.Nested(AutobuildSchema, data_key="auto-build", attribute="auto-build")

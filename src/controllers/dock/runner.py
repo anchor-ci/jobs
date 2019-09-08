@@ -47,7 +47,7 @@ class JobConstructor:
             try:
                 stages.append({
                     "name": name,
-                    "stages": schema.load(val)
+                    **schema.load(val)
                 })
             except ValidationError as e:
                 raise JobValidationException(
