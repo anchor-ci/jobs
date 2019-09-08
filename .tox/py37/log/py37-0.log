@@ -1,9 +1,0 @@
-action: py37, msg: getenv
-cwd: /home/christianbrintnall/Projects/ci/bread_jobs/.tox
-cmd: /usr/bin/python3 -m virtualenv --no-download --python /usr/bin/python3 py37
-Already using interpreter /usr/bin/python3
-Using base prefix '/usr'
-New python executable in /home/christianbrintnall/Projects/ci/bread_jobs/.tox/py37/bin/python3
-Also creating executable in /home/christianbrintnall/Projects/ci/bread_jobs/.tox/py37/bin/python
-Installing setuptools, pip, wheel...
-done.
