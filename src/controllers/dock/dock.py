@@ -11,7 +11,7 @@ class Dock(Resource):
         super().__init__()
         self.manager = DockManager()
 
-    def post(self, rid):
+    def post(self, trigger_id):
         try:
             job = self.manager.create_job(rid)
             if job:
@@ -21,4 +21,4 @@ class Dock(Resource):
 
         return {}, 400
 
-api.add_resource(Dock, '/repo/<rid>/job')
+api.add_resource(Dock, '/repo/<trigger_id>/job')

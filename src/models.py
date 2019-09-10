@@ -85,3 +85,14 @@ class JobHistory(db.Model):
         self.job_id = linked_job.id
         self.job = linked_job
         self.history = history
+
+class WebhookTrigger(db.Model):
+    id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid4)
+    repository_id = db.Column(UUID(as_uuid=True), db.ForeignKey(Repository.id), nullable=True)
+    repository = db.relationship(Repository)
+
+    def __init__(self, repository_id=None):
+        if repository_id:
+            self.repository_id = repository_id
+            self.repository = Repository.query.filter_by(id=repository_id).first()
+
