@@ -1,5 +1,8 @@
-from models import db, Job, JobHistory
+from models import db, Job, JobHistory, Repository
 from sqlalchemy.sql import exists
+
+def get_repository(repository_id, *args, **kwargs):
+    return Repository.query.get(repository_id)
 
 def job_history_exists(hid) -> bool:
     return bool(db.session.query(exists().where(JobHistory.id == hid)).scalar())

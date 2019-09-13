@@ -70,7 +70,6 @@ class DockManager:
     def create_job(self, rid):
         schema = JobSchema()
         historySchema = JobHistorySchema()
-        i_schema = JobInstructionsSchema()
 
         job_payload = {
             "repository_id": rid
@@ -86,27 +85,18 @@ class DockManager:
         constructor = JobConstructor(instructions)
         transformed_instructions = constructor.create()
 
-        instruction_payload = {
-            "job_id": job.id,
-            "instructions": transformed_instructions
-        }
-
-        print(instruction_payload)
-
         if not instructions:
             return {"Error": "Failed to grab instructions"}, 400
 
-        i_job = i_schema.load(instruction_payload)
         history = self._create_history(job.id)
 
-        db.session.add(i_job)
         db.session.add(history)
 
         # Don't commit until after history is made and added
         db.session.commit()
 
         payload = schema.dump(job)
-        payload["instruction_set"] = i_schema.dump(i_job)
+        payload["data"] = transformed_instructions
         payload["history"] = historySchema.dump(history)
 
         # Add to the redis database for the job workers to pickup

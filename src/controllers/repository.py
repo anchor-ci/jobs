@@ -47,9 +47,7 @@ class RepositoryController(Resource):
         response = None
 
         try:
-            print(f"RID: {rid}")
             repository = Repository.query.get(rid)
-            print(repository)
 
             if not repository:
                 response = {}, 404

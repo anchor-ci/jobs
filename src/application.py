@@ -5,7 +5,7 @@ from controllers.images import images
 from controllers.jobs import job
 from controllers.repository import repo_bp
 from controllers.dock.dock import dock_bp
-from controllers.trigger.trigger import triggers
+from controllers.trigger.triggers import triggers
 from models import db, JobInstructions, Repository, Job
 from flask import Flask
 from flask_restful import Resource, Api
